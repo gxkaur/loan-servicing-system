@@ -1,0 +1,4 @@
+loan_id,customer_id,customer_name,loan_amount,annual_interest_rate,term_months,start_date,monthly_due
+L001,C001,Aman Sharma,10000,10,12,2025-01-01,879.16
+L002,C002,Neha Patel,20000,12,24,2025-01-01,941.47
+L003,C003,Rahul Verma,15000,8,18,2025-01-01,882.39

@@ -1,0 +1,4 @@
+loan_id,customer_id,customer_name,loan_amount,annual_interest_rate,term_months,start_date,monthly_due,outstanding_balance,last_payment_date,last_payment_amount,payment_status
+L001,C001,Aman Sharma,10000,10,12,2025-01-01,879.16,9204.17,2025-02-01,879.16,PAID
+L002,C002,Neha Patel,20000,12,24,2025-01-01,941.47,19700.0,2025-02-01,500.0,PARTIAL
+L003,C003,Rahul Verma,15000,8,18,2025-01-01,882.39,15000.0,2025-02-01,0.0,MISSED
