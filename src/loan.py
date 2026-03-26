@@ -9,7 +9,6 @@ class Loan:
     annual_interest_rate: float
     term_months: int
     start_date: str
-    monthly_due: float
 
     def monthly_interest_rate(self) -> float:
         return self.annual_interest_rate / 12 / 100
@@ -18,6 +17,9 @@ class Loan:
         r = self.monthly_interest_rate()
         n = self.term_months
         p = self.loan_amount
+
+        if n <= 0:
+            raise ValueError("term_months must be greater than 0")
 
         if r == 0:
             return round(p / n, 2)
