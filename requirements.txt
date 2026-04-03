@@ -2,3 +2,5 @@ pandas
 psycopg2-binary
 python-dotenv
 .env
+fastapi
+uvicorn[standard]

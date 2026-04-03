@@ -32,6 +32,14 @@ def fetch_payments():
     return df
 
 
+def fetch_payment_history():
+    conn = get_connection()
+    query = "SELECT * FROM payment_history ORDER BY history_id;"
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+
 def update_loans(loans_df: pd.DataFrame):
     conn = get_connection()
     cur = conn.cursor()
@@ -114,5 +122,21 @@ def insert_payment_history(payment_history_df: pd.DataFrame):
         )
 
     conn.commit()
+    cur.close()
+    conn.close()
+
+
+def insert_payment(payment_id: str, loan_id: str, payment_date: str, amount_paid: float):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    insert_query = """
+    INSERT INTO payments (payment_id, loan_id, payment_date, amount_paid)
+    VALUES (%s, %s, %s, %s);
+    """
+
+    cur.execute(insert_query, (payment_id, loan_id, payment_date, amount_paid))
+    conn.commit()
+
     cur.close()
     conn.close()
