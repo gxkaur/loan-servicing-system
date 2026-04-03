@@ -3,6 +3,7 @@ import pandas as pd
 from loan import Loan
 from payment_processor import process_monthly_servicing
 from reporting import generate_summary_report
+from db_utils import fetch_loans, fetch_payments, update_loans, insert_payment_history
 
 def add_monthly_due(loans_df: pd.DataFrame) -> pd.DataFrame:
     enriched_rows = []
@@ -30,18 +31,18 @@ def add_monthly_due(loans_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    loans_path = os.path.join("..", "data", "loans.csv")
-    payments_path = os.path.join("..", "data", "payments.csv")
     output_dir = os.path.join("..", "data", "outputs")
-
     os.makedirs(output_dir, exist_ok=True)
 
-    loans_df = pd.read_csv(loans_path)
-    payments_df = pd.read_csv(payments_path)
+    loans_df = fetch_loans()
+    payments_df = fetch_payments()
 
     loans_df = add_monthly_due(loans_df)
 
     updated_loans_df, payment_history_df = process_monthly_servicing(loans_df, payments_df)
+
+    update_loans(updated_loans_df)
+    insert_payment_history(payment_history_df)
 
     updated_loans_path = os.path.join(output_dir, "updated_loans.csv")
     payment_history_path = os.path.join(output_dir, "payment_history.csv")

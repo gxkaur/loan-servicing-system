@@ -73,7 +73,7 @@ def process_monthly_servicing(loans_df: pd.DataFrame, payments_df: pd.DataFrame)
             "due_date": due_date,
             "payment_date": payment_date,
             "scheduled_monthly_due": monthly_due,
-            "carried_forward_due": carried_forward_due,
+            "carried_forward_due_in": carried_forward_due,
             "total_due": total_due,
             "amount_paid": amount_paid,
             "interest_due": interest_due,
