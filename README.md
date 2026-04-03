@@ -2,9 +2,18 @@
 
 ## Overview
 
-This project simulates a real-world **loan servicing system** that processes borrower payments, tracks outstanding balances, and manages loan lifecycle states such as full, partial, and missed payments.
+This project simulates a real-world **loan servicing system** that processes borrower payments, tracks outstanding balances, and manages loan lifecycle states such as full, partial, and missed payments. It is designed to reflect how financial institutions handle **monthly loan servicing cycles**, including interest calculation, principal allocation, delinquency tracking, and carry-forward of unpaid dues.
 
-It is designed to reflect how financial institutions handle **monthly loan servicing cycles**, including interest calculation, principal allocation, delinquency tracking, and carry-forward of unpaid dues.
+---
+
+## Tech Stack
+
+- **Python**
+- **FastAPI**
+- **PostgreSQL**
+- **psycopg2**
+- **Pandas**
+- **Git & GitHub**
 
 ---
 
@@ -24,7 +33,18 @@ It is designed to reflect how financial institutions handle **monthly loan servi
   - Outstanding balance
   - Remaining loan term
   - Missed payment count
-- Structured output reports for loan status and payment history
+- Persistent payment history tracking
+
+---
+
+## System Design (High Level)
+
+Input Data → Processing Engine → Database → API / Reports
+
+- **Processing Engine** handles loan servicing logic  
+- **Database** maintains persistent loan and payment state  
+- **API** enables interaction with the system  
+- **Batch Runner** allows scheduled execution  
 
 ---
 
@@ -39,9 +59,14 @@ loan-servicing-system/
 │ └── outputs/
 │
 ├── src/
+│ ├── app.py
 │ ├── main.py
+│ ├── config.py
+│ ├── db.py
+│ ├── schemas.py
 │ ├── loan.py
 │ ├── payment_processor.py
+│ ├── servicing_service.py
 │ ├── reporting.py
 │
 ├── requirements.txt
@@ -51,54 +76,40 @@ loan-servicing-system/
 
 ---
 
-## Tech Stack
-
-- **Python**
-- **Pandas**
-- **Dataclasses**
-- **Git & GitHub**
-
----
-
-## How It Works
-
-1. Loan data is ingested from CSV
-2. EMI is calculated dynamically based on loan parameters
-3. A monthly servicing cycle is executed:
-   - Interest is calculated on outstanding balance
-   - Payment is applied
-   - Split into interest and principal
-4. System determines payment status:
-   - `PAID`
-   - `PARTIAL`
-   - `MISSED`
-5. Unpaid amounts are carried forward
-6. Loan state is updated:
-   - Remaining balance
-   - Remaining term
-   - Next due date
-   - Missed payment count
-7. Reports are generated
-
----
-
 ## How to Run
 
 ### 1. Install dependencies
 `pip install -r requirements.txt`
-### 2. Run the application
+### 2. Set up environment variables
+Create a `.env` file:
+```
+DB_NAME=loan_servicing
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+```
+### 3. Run API
+```
+cd src
+uvicorn app:app --reload
+```
+Open
+```
+http://127.0.0.1:8000/docs
+```
+
+### 4. Run Batch Processing
 ```
 cd src
 python main.py
 ```
 ---
+## Output
 
-## Sample Output
-
-The system generates:
-
-- `updated_loans.csv` → latest loan state
-- `payment_history.csv` → detailed servicing records
+- Updates loan state in PostgreSQL
+- Inserts records into `payment_history` DB table
+- Generate CSV reports in `data/outputs/`
 
 ---
 
@@ -106,20 +117,20 @@ The system generates:
 
 - Backend system design for financial workflows
 - Data processing and transformation pipelines
-- Implementation of real-world business logic
+- Implementation of real-world business logic for loan servicing
 - State management across time-based cycles
 - Handling of edge cases (partial/missed payments)
+- API-driven service design
+- Database integration with PostgreSQL
 
 ---
 
 ## Future Enhancements
 
-- Database integration (SQLite/PostgreSQL)
 - AWS integration (S3, Lambda, API Gateway)
 - Dashboard using Streamlit
 - Late fee and penalty calculations
 - Multi-cycle simulation engine
-- REST API layer using FastAPI
 
 ---
 
