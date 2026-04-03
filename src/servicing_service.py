@@ -1,5 +1,6 @@
 import pandas as pd
 from loan import Loan
+from payment_processor import process_monthly_servicing
 
 
 def add_monthly_due(loans_df: pd.DataFrame) -> pd.DataFrame:
@@ -25,3 +26,8 @@ def add_monthly_due(loans_df: pd.DataFrame) -> pd.DataFrame:
         enriched_rows.append(row_dict)
 
     return pd.DataFrame(enriched_rows)
+
+
+def run_servicing_cycle(loans_df: pd.DataFrame, payments_df: pd.DataFrame):
+    loans_df = add_monthly_due(loans_df)
+    return process_monthly_servicing(loans_df, payments_df)

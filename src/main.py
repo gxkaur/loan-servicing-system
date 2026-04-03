@@ -1,10 +1,12 @@
 import os
-import pandas as pd
-from loan import Loan
-from payment_processor import process_monthly_servicing
+from db import (
+    fetch_loans, 
+    fetch_payments, 
+    update_loans, 
+    insert_payment_history
+)
+from servicing_service import run_servicing_cycle
 from reporting import generate_summary_report
-from db_utils import fetch_loans, fetch_payments, update_loans, insert_payment_history
-from servicing_utils import add_monthly_due
 
 
 def main():
@@ -14,9 +16,7 @@ def main():
     loans_df = fetch_loans()
     payments_df = fetch_payments()
 
-    loans_df = add_monthly_due(loans_df)
-
-    updated_loans_df, payment_history_df = process_monthly_servicing(loans_df, payments_df)
+    updated_loans_df, payment_history_df = run_servicing_cycle(loans_df, payments_df)
 
     update_loans(updated_loans_df)
     insert_payment_history(payment_history_df)

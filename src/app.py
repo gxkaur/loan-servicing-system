@@ -1,12 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import pandas as pd
 
-from loan import Loan
-from payment_processor import process_monthly_servicing
-from reporting import generate_summary_report
-from servicing_utils import add_monthly_due
-from db_utils import (
+from db import (
     fetch_loans, 
     fetch_payments,
     fetch_payment_history, 
@@ -14,14 +8,11 @@ from db_utils import (
     update_loans,
     insert_payment_history
 )
+from reporting import generate_summary_report
+from servicing_service import run_servicing_cycle
+from schemas import PaymentCreate
 
 app = FastAPI(title="Loan Servicing API")
-
-class PaymentCreate(BaseModel):
-    payment_id: str
-    loan_id: str
-    payment_date: str
-    amount_paid: float
 
 
 # ----------------
@@ -84,14 +75,12 @@ def create_payment(payment: PaymentCreate):
 
 
 @app.post("/servicing/run")
-def run_servicing_cycle():
+def run_servicing():
     try:
         loans_df = fetch_loans()
         payments_df = fetch_payments()
 
-        loans_df = add_monthly_due(loans_df)
-
-        updated_loans_df, payment_history_df = process_monthly_servicing(loans_df, payments_df)
+        updated_loans_df, payment_history_df = run_servicing_cycle(loans_df, payments_df)
 
         update_loans(updated_loans_df)
         insert_payment_history(payment_history_df)
