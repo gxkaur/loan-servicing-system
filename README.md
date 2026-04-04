@@ -34,6 +34,7 @@ This project simulates a real-world **loan servicing system** that processes bor
   - Remaining loan term
   - Missed payment count
 - Persistent payment history tracking
+- late fee assessment and penalty tracking
 
 ---
 
@@ -129,7 +130,6 @@ python main.py
 
 - AWS integration (S3, Lambda, API Gateway)
 - Dashboard using Streamlit
-- Late fee and penalty calculations
 - Multi-cycle simulation engine
 
 ---

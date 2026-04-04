@@ -1,9 +1,25 @@
 import pandas as pd
 
+LATE_FEE_AMOUNT = 25.00     # Flat late fee applied when a payment is missed or partially paid
+PENALTY_RATE = 0.02         # 2% of the unpaid amount as a penalty for late payment
+
+
 def add_one_month(date_str: str) -> str:
     date = pd.to_datetime(date_str)
     next_date = date + pd.DateOffset(months=1)
     return next_date.strftime("%Y-%m-%d")
+
+
+def assess_delinquency_charges(amount_paid: float, total_due: float, unpaid_amount: float) -> tuple[float, float]:
+    late_fee_applied = 0.0
+    penalty_applied = 0.0
+
+    if amount_paid < total_due:
+        late_fee_applied = LATE_FEE_AMOUNT
+        penalty_applied = round(unpaid_amount * PENALTY_RATE, 2)
+
+    return late_fee_applied, penalty_applied
+
 
 def process_monthly_servicing(loans_df: pd.DataFrame, payments_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     updated_loans = []
@@ -28,11 +44,13 @@ def process_monthly_servicing(loans_df: pd.DataFrame, payments_df: pd.DataFrame)
         missed_payment_count = int(loan["missed_payment_count"])
         due_date = loan["next_due_date"]
         carried_forward_due = float(loan.get("carried_forward_due", 0.0))
+        late_fee_due = float(loan.get("late_fee_due", 0.0))
+        penalty_due = float(loan.get("penalty_due", 0.0))
 
         monthly_rate = annual_rate / 12 / 100        
         interest_due = round(outstanding_balance * monthly_rate, 2)
 
-        total_due = round(monthly_due + carried_forward_due, 2)
+        total_due = round(monthly_due + carried_forward_due + late_fee_due + penalty_due, 2)
 
         interest_paid = round(min(amount_paid, interest_due), 2)
         principal_paid = round(max(amount_paid - interest_paid, 0), 2)
@@ -53,6 +71,12 @@ def process_monthly_servicing(loans_df: pd.DataFrame, payments_df: pd.DataFrame)
         else:
             payment_status = "PAID"
 
+        late_fee_applied, penalty_applied = assess_delinquency_charges(
+            amount_paid=amount_paid,
+            total_due=total_due,
+            unpaid_amount=unpaid_amount,
+        )
+
         if amount_paid >= monthly_due and remaining_term_months > 0:
             remaining_term_months -= 1
 
@@ -65,6 +89,8 @@ def process_monthly_servicing(loans_df: pd.DataFrame, payments_df: pd.DataFrame)
         updated_loan["last_payment_amount"] = amount_paid
         updated_loan["payment_status"] = payment_status
         updated_loan["carried_forward_due"] = unpaid_amount
+        updated_loan["late_fee_due"] = round(late_fee_due + late_fee_applied, 2)
+        updated_loan["penalty_due"] = round(penalty_due + penalty_applied, 2)
 
         updated_loans.append(updated_loan)
 
@@ -82,7 +108,9 @@ def process_monthly_servicing(loans_df: pd.DataFrame, payments_df: pd.DataFrame)
             "unpaid_amount_carried_forward": unpaid_amount,
             "remaining_balance": new_balance,
             "remaining_term_months": remaining_term_months,
-            "payment_status": payment_status
+            "payment_status": payment_status,
+            "late_fee_applied": late_fee_applied,
+            "penalty_applied": penalty_applied
         })
 
     return pd.DataFrame(updated_loans), pd.DataFrame(payment_history)

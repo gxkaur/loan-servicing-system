@@ -42,7 +42,9 @@ def update_loans(loans_df: pd.DataFrame):
             remaining_term_months = %s,
             next_due_date = %s,
             missed_payment_count = %s,
-            carried_forward_due = %s
+            carried_forward_due = %s,
+            late_fee_due = %s,
+            penalty_due = %s
         WHERE loan_id = %s;
     """
 
@@ -55,6 +57,8 @@ def update_loans(loans_df: pd.DataFrame):
                 row["next_due_date"],
                 int(row["missed_payment_count"]),
                 float(row["carried_forward_due"]),
+                float(row["late_fee_due"]),
+                float(row["penalty_due"]),
                 row["loan_id"],
             )
         )        
@@ -80,11 +84,13 @@ def insert_payment_history(payment_history_df: pd.DataFrame):
         interest_due,
         interest_paid,
         principal_paid,
+        late_fee_applied,
+        penalty_applied,
         unpaid_amount_carried_forward,
         remaining_balance,
         remaining_term_months,
         payment_status
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
     """
 
     for _, row in payment_history_df.iterrows():
@@ -105,6 +111,8 @@ def insert_payment_history(payment_history_df: pd.DataFrame):
                 float(row["interest_due"]),
                 float(row["interest_paid"]),
                 float(row["principal_paid"]),
+                float(row["late_fee_applied"]),
+                float(row["penalty_applied"]),
                 float(row["unpaid_amount_carried_forward"]),
                 float(row["remaining_balance"]),
                 int(row["remaining_term_months"]),
